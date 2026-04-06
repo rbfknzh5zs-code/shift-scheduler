@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Shift Canvas{% endblock %}
+{% block content %}
+<section class="hero panel">
+  <p class="eyebrow">月次シフト希望管理</p>
+  <h1>LINE配布向けの入力フォームと、全員分の月間カレンダーを1つに。</h1>
+  <p class="lead">対象月: <strong>{{ year }}年{{ month }}月</strong></p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="{{ url_for('shift_form', year=year, month=month) }}">スタッフ入力へ</a>
+    <a class="btn btn-ghost" href="{{ url_for('admin', year=year, month=month) }}">管理カレンダーへ</a>
+  </div>
+</section>
+
+<section class="panel grid-2">
+  <article class="tile">
+    <h2>スタッフ側</h2>
+    <p>日付ごとに「出勤可能時間 / 申請休 / 契約休 / 有給」を入力し、月次コメントを送信。</p>
+  </article>
+  <article class="tile">
+    <h2>管理者側</h2>
+    <p>月間カレンダー確認、CSV出力（requests / availability）、既存 solver へ連携。</p>
+  </article>
+</section>
+{% endblock %}

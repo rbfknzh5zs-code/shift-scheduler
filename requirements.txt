@@ -1,0 +1,4 @@
+pulp>=2.7
+openpyxl>=3.1
+jpholiday>=1.0
+Flask>=3.0

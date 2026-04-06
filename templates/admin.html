@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}管理カレンダー{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1 class="section-title">管理カレンダー</h1>
+  <p class="section-sub">{{ year }}年{{ month }}月の回答一覧</p>
+
+  <form method="get" class="toolbar">
+    <label>年
+      <input type="number" name="year" value="{{ year }}" min="2020" max="2100">
+    </label>
+    <label>月
+      <input type="number" name="month" value="{{ month }}" min="1" max="12">
+    </label>
+    <button class="btn btn-ghost" type="submit">表示更新</button>
+  </form>
+
+  <div class="export-row">
+    <a class="btn btn-primary" href="{{ url_for('export_requests_csv', year=year, month=month) }}">requests.csv 出力</a>
+    <a class="btn btn-ghost" href="{{ url_for('export_availability_csv', year=year, month=month) }}">availability.csv 出力</a>
+    <a class="btn btn-ghost" href="{{ url_for('export_monthly_answers_csv', year=year, month=month) }}">全回答CSV</a>
+  </div>
+</section>
+
+<section class="panel">
+  <h2 class="section-title">月間カレンダー</h2>
+  <div class="calendar-grid">
+    <div class="dow">日</div>
+    <div class="dow">月</div>
+    <div class="dow">火</div>
+    <div class="dow">水</div>
+    <div class="dow">木</div>
+    <div class="dow">金</div>
+    <div class="dow">土</div>
+
+    {% for week in weeks %}
+      {% for cell in week %}
+        {% if not cell %}
+          <div class="day-card day-card-empty"></div>
+        {% else %}
+          <article class="day-card">
+            <header class="day-head">
+              <strong>{{ cell.date.day }}</strong>
+              <span>
+                可 {{ cell.counts.available }} / 申 {{ cell.counts.requested_off }} / 契 {{ cell.counts.contract_off }} / 有 {{ cell.counts.paid_leave }}
+              </span>
+            </header>
+            <div class="day-list">
+              {% if cell.entries %}
+                {% for e in cell.entries %}
+                  <div class="entry-tag entry-{{ e.status }}">{{ e.name }}: {% if e.status == 'available' %}{{ e.time_text }}{% else %}{{ e.status_label }}{% endif %}</div>
+                {% endfor %}
+              {% else %}
+                <div class="entry-empty">回答なし</div>
+              {% endif %}
+            </div>
+          </article>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <h2 class="section-title">スタッフ別一覧</h2>
+  <div class="table-wrap">
+    <table class="matrix-table">
+      <thead>
+      <tr>
+        <th>スタッフ</th>
+        {% for d in dates %}
+          <th>{{ d.strftime('%m/%d') }}</th>
+        {% endfor %}
+      </tr>
+      </thead>
+      <tbody>
+      {% for name in staff_names %}
+        <tr>
+          <td>{{ name }}</td>
+          {% for d in dates %}
+            <td>{{ matrix[name][d.isoformat()] }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <h2 class="section-title">コメント</h2>
+  <div class="comment-list">
+    {% for name in staff_names %}
+      <article class="comment-item">
+        <header>
+          <strong>{{ name }}</strong>
+          <span>{{ submitted_at[name] or '未提出' }}</span>
+        </header>
+        <p>{{ comments[name] or 'コメントなし' }}</p>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

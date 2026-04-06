@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}スタッフ入力{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1 class="section-title">スタッフ入力フォーム</h1>
+  <p class="section-sub">{{ year }}年{{ month }}月の希望を入力してください。</p>
+
+  {% if errors %}
+  <div class="error-box">
+    {% for err in errors %}
+      <div>{{ err }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <form method="get" class="toolbar">
+    <label>スタッフ
+      <select name="name">
+        {% for n in staff_names %}
+        <option value="{{ n }}" {% if n == selected_name %}selected{% endif %}>{{ n }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>年
+      <input type="number" name="year" value="{{ year }}" min="2020" max="2100">
+    </label>
+    <label>月
+      <input type="number" name="month" value="{{ month }}" min="1" max="12">
+    </label>
+    <button class="btn btn-ghost" type="submit">表示更新</button>
+  </form>
+
+  <form method="post" id="shift-form">
+    <input type="hidden" name="name" value="{{ selected_name }}">
+    <input type="hidden" name="year" value="{{ year }}">
+    <input type="hidden" name="month" value="{{ month }}">
+
+    <div class="quick-actions">
+      <button class="btn btn-mini" type="button" data-fill="all-available">全日 09:00-18:00</button>
+      <button class="btn btn-mini" type="button" data-fill="all-requested">全日 申請休</button>
+    </div>
+
+    <div class="table-wrap">
+      <table class="form-table">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>区分</th>
+            <th>開始</th>
+            <th>終了</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in day_rows %}
+          <tr class="day-row" data-date="{{ row.key }}">
+            <td>
+              <strong>{{ row.date.strftime('%m/%d') }}</strong>
+              <span class="weekday">({{ row.day_name }})</span>
+            </td>
+            <td>
+              <select name="status_{{ row.key }}" class="status-select">
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if value == row.status %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </td>
+            <td>
+              <input type="time" name="start_{{ row.key }}" value="{{ row.start_time }}" class="time-input start-input">
+            </td>
+            <td>
+              <input type="time" name="end_{{ row.key }}" value="{{ row.end_time }}" class="time-input end-input">
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <label class="comment-label">コメント
+      <textarea name="comment" rows="4" placeholder="補足や相談事項を書いてください">{{ comment }}</textarea>
+    </label>
+
+    <button class="btn btn-primary" type="submit">保存する</button>
+  </form>
+</section>
+{% endblock %}
