@@ -10,3 +10,4 @@ data/*.db
 shift_output_*.csv
 shift_output_*.xlsx
 /tmp/
+.vercel
