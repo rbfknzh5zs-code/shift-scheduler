@@ -51,12 +51,20 @@ Claude Code on the web や Codex のクラウド環境で作業していると�
 
 ## 見た目の確認
 - ローカル: `shift_portal.py` を起動し、Google Chrome で http://localhost:5050 を開く
-- クラウド: 画面は開けない。pushしたコミットに Vercel のデプロイがあれば、そのURLを利用者に伝える。なければローカルでの確認を依頼する
+- クラウド: 作業ブランチ（main以外）にpushすると、Vercel がプレビューを作る。そのURLを利用者に伝え、main にマージする前に利用者のPCやスマホのブラウザで確認してもらう
+
+pushの数分後に、プレビューの状態とURLを取得する。
 
 ```bash
 id=$(gh api "repos/rbfknzh5zs-code/shift-scheduler/deployments?sha=$(git rev-parse HEAD)" --jq '.[0].id')
-[ -n "$id" ] && gh api "repos/rbfknzh5zs-code/shift-scheduler/deployments/$id/statuses" --jq '.[0].target_url'
+[ -n "$id" ] && gh api "repos/rbfknzh5zs-code/shift-scheduler/deployments/$id/statuses" --jq '.[0] | "\(.state) \(.target_url)"'
 ```
+
+- `success`: URLを利用者に伝える
+- `pending` / `in_progress`: 1〜2分待って再実行する
+- `failure` / `error`、または数分待っても何も出ない: コミット作者（下記）を確認する。解決しなければブランチ名を伝え、ローカルでの確認を依頼する
+
+プレビューは Vercel Authentication で保護されているので、Vercel にログインしたブラウザで開くよう利用者に伝える。
 
 ## コミット作者（Vercel）
 Vercel は、プロジェクトへのアクセス権がない作者のコミットをデプロイしない（`Git author ... must have access to the project on Vercel`）。コミット前に作者を確認し、違えば設定する。
